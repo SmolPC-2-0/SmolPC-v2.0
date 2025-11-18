@@ -193,9 +193,72 @@
 	}
 
 	onMount(() => {
-		return () => {
+		let unlistenDone: UnlistenFn;
+		let unlistenError: UnlistenFn;
+		let unlistenCancelled: UnlistenFn;
+
+		async function setupListeners() {
+			unlistenDone = await listen<{ chat_id: string; message_id: string }>('ollama_done', (event) => {
+				const { chat_id, message_id } = event.payload;
+				if (currentStreamingChatId === chat_id && currentStreamingMessageId === message_id) {
+					isGenerating = false;
+					currentStreamingChatId = null;
+					currentStreamingMessageId = null;
+				}
+			});
+
+			unlistenError = await listen<{ chat_id: string; message_id: string; error: string }>(
+				'ollama_error',
+				(event) => {
+					const { chat_id, message_id, error } = event.payload;
+					if (currentStreamingChatId === chat_id && currentStreamingMessageId === message_id) {
+						chatsStore.updateMessage(chat_id, message_id, {
+							content: `Error: ${error}`
+						});
+						isGenerating = false;
+						currentStreamingChatId = null;
+						currentStreamingMessageId = null;
+					}
+				}
+			);
+
+			unlistenCancelled = await listen<{ chat_id: string; message_id: string }>(
+				'ollama_cancelled',
+				(event) => {
+					const { chat_id, message_id } = event.payload;
+					if (currentStreamingChatId === chat_id && currentStreamingMessageId === message_id) {
+						isGenerating = false;
+						currentStreamingChatId = null;
+						currentStreamingMessageId = null;
+					}
+				}
+			);
+		}
+
+		// Check Ollama connection on mount
+		ollamaStore.checkConnection();
+
+		// Setup event listeners
+		const cleanupPromise = setupListeners();
+
+		// Create initial chat if none exists
+		if (hasNoChats) {
+			chatsStore.createChat(settingsStore.model);
+		}
+
+		return async () => {
+			await cleanupPromise;
 			if (unlistenChunk) {
 				unlistenChunk();
+			}
+			if (unlistenDone) {
+				unlistenDone();
+			}
+			if (unlistenError) {
+				unlistenError();
+			}
+			if (unlistenCancelled) {
+				unlistenCancelled();
 			}
 		};
 	});
@@ -252,7 +315,7 @@
 						</div>
 					</div>
 				{:else if messages.length === 0 && showQuickExamples}
-					<QuickExamples on:exampleClick={(e) => handleExampleClick(e.detail)} />
+					<QuickExamples onSelectExample={handleExampleClick} />
 				{:else}
 					{#each messages as message (message.id)}
 						<ChatMessage {message} />
