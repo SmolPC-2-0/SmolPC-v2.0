@@ -332,7 +332,7 @@
 
 			<!-- Input -->
 			<div class="border-t bg-white p-4">
-				<ChatInput on:send={(e) => sendMessage(e.detail)} disabled={isGenerating || hasNoChats} />
+				<ChatInput onSend={sendMessage} disabled={isGenerating || hasNoChats} />
 			</div>
 		</div>
 	</div>
