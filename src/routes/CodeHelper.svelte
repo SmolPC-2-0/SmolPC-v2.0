@@ -88,7 +88,14 @@
 	let unlistenChunk: UnlistenFn | undefined;
 
 	async function sendMessage(content: string) {
-		if (!content.trim() || isGenerating) return;
+		console.log('sendMessage called with:', content);
+		console.log('isGenerating:', isGenerating);
+		console.log('currentChat:', currentChat);
+
+		if (!content.trim() || isGenerating) {
+			console.log('Blocked: empty content or already generating');
+			return;
+		}
 
 		showQuickExamples = false;
 		userHasScrolledUp = false;
@@ -99,6 +106,8 @@
 			console.error('No active chat');
 			return;
 		}
+
+		console.log('Sending message to chat:', currentChatId);
 
 		const userMessage: Message = {
 			id: crypto.randomUUID(),
@@ -149,11 +158,19 @@
 				}
 			});
 
+			console.log('Calling invoke with:', {
+				prompt: content.trim(),
+				model: settingsStore.selectedModel,
+				context: ollamaContext
+			});
+
 			await invoke('generate_stream', {
 				prompt: content.trim(),
 				model: settingsStore.selectedModel,
 				context: ollamaContext.length > 0 ? ollamaContext : null
 			});
+
+			console.log('invoke completed');
 		} catch (error) {
 			console.error('Error sending message:', error);
 			chatsStore.updateMessage(currentChatId, assistantMessage.id, {
