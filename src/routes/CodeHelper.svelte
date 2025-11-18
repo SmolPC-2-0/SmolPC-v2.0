@@ -126,13 +126,10 @@
 			? currentChat?.messages.slice(0, -1) || []
 			: [];
 
-		const ollamaMessages: OllamaMessage[] = [
-			...contextMessages.map((msg) => ({
-				role: msg.role,
-				content: msg.content
-			})),
-			{ role: 'user', content: content.trim() }
-		];
+		const ollamaContext: OllamaMessage[] = contextMessages.map((msg) => ({
+			role: msg.role,
+			content: msg.content
+		}));
 
 		try {
 			if (unlistenChunk) {
@@ -153,10 +150,9 @@
 			});
 
 			await invoke('generate_stream', {
+				prompt: content.trim(),
 				model: settingsStore.model,
-				messages: ollamaMessages,
-				chatId: currentChatId,
-				messageId: assistantMessage.id
+				context: ollamaContext.length > 0 ? ollamaContext : null
 			});
 		} catch (error) {
 			console.error('Error sending message:', error);
@@ -198,41 +194,29 @@
 		let unlistenCancelled: UnlistenFn;
 
 		async function setupListeners() {
-			unlistenDone = await listen<{ chat_id: string; message_id: string }>('ollama_done', (event) => {
-				const { chat_id, message_id } = event.payload;
-				if (currentStreamingChatId === chat_id && currentStreamingMessageId === message_id) {
-					isGenerating = false;
-					currentStreamingChatId = null;
-					currentStreamingMessageId = null;
-				}
+			unlistenDone = await listen('ollama_done', () => {
+				isGenerating = false;
+				currentStreamingChatId = null;
+				currentStreamingMessageId = null;
 			});
 
-			unlistenError = await listen<{ chat_id: string; message_id: string; error: string }>(
-				'ollama_error',
-				(event) => {
-					const { chat_id, message_id, error } = event.payload;
-					if (currentStreamingChatId === chat_id && currentStreamingMessageId === message_id) {
-						chatsStore.updateMessage(chat_id, message_id, {
-							content: `Error: ${error}`
-						});
-						isGenerating = false;
-						currentStreamingChatId = null;
-						currentStreamingMessageId = null;
-					}
+			unlistenError = await listen<string>('ollama_error', (event) => {
+				const error = event.payload;
+				if (currentStreamingChatId && currentStreamingMessageId) {
+					chatsStore.updateMessage(currentStreamingChatId, currentStreamingMessageId, {
+						content: `Error: ${error}`
+					});
 				}
-			);
+				isGenerating = false;
+				currentStreamingChatId = null;
+				currentStreamingMessageId = null;
+			});
 
-			unlistenCancelled = await listen<{ chat_id: string; message_id: string }>(
-				'ollama_cancelled',
-				(event) => {
-					const { chat_id, message_id } = event.payload;
-					if (currentStreamingChatId === chat_id && currentStreamingMessageId === message_id) {
-						isGenerating = false;
-						currentStreamingChatId = null;
-						currentStreamingMessageId = null;
-					}
-				}
-			);
+			unlistenCancelled = await listen('ollama_cancelled', () => {
+				isGenerating = false;
+				currentStreamingChatId = null;
+				currentStreamingMessageId = null;
+			});
 		}
 
 		// Check Ollama connection on mount
