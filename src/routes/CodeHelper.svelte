@@ -90,10 +90,16 @@
 	async function sendMessage(content: string) {
 		console.log('sendMessage called with:', content);
 		console.log('isGenerating:', isGenerating);
+		console.log('ollamaStore.isConnected:', ollamaStore.isConnected);
 		console.log('currentChat:', currentChat);
 
-		if (!content.trim() || isGenerating) {
-			console.log('Blocked: empty content or already generating');
+		if (!ollamaStore.isConnected || isGenerating) {
+			console.log('Blocked: Ollama not connected or already generating');
+			return;
+		}
+
+		if (!content.trim()) {
+			console.log('Blocked: empty content');
 			return;
 		}
 
