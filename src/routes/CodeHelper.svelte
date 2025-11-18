@@ -16,7 +16,7 @@
 	import type { OllamaMessage } from '$lib/types/ollama';
 	import { Menu, X, Home } from '@lucide/svelte';
 	import { Button } from '$lib/components/ui/button';
-	import { push } from 'svelte-spa-router';
+	import { push } from '$lib/router.svelte';
 
 	// UI State
 	let isSidebarOpen = $state(true);

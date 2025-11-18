@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button';
 	import { Home } from '@lucide/svelte';
-	import { push } from 'svelte-spa-router';
+	import { push } from '$lib/router.svelte';
 </script>
 
 <div class="flex h-screen flex-col items-center justify-center bg-gradient-to-br from-orange-50 to-yellow-50">
