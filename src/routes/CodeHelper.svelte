@@ -151,7 +151,7 @@
 
 			await invoke('generate_stream', {
 				prompt: content.trim(),
-				model: settingsStore.model,
+				model: settingsStore.selectedModel,
 				context: ollamaContext.length > 0 ? ollamaContext : null
 			});
 		} catch (error) {
@@ -227,7 +227,7 @@
 
 		// Create initial chat if none exists
 		if (hasNoChats) {
-			chatsStore.createChat(settingsStore.model);
+			chatsStore.createChat(settingsStore.selectedModel);
 		}
 
 		return async () => {
