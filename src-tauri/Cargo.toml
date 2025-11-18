@@ -1,7 +1,7 @@
 [package]
-name = "smolpc-code-helper"
+name = "smolpc-unified"
 version = "2.0.0"
-description = "An AI-powered coding assistant for students, powered by local Ollama models"
+description = "SmolPC 2.0 - Unified offline AI-powered educational tools suite"
 authors = ["SmolPC Team"]
 license = "MIT"
 edition = "2021"

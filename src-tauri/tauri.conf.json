@@ -1,8 +1,8 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
-  "productName": "SmolPC Code Helper",
+  "productName": "SmolPC 2.0",
   "version": "2.0.0",
-  "identifier": "com.smolpc.codehelper",
+  "identifier": "com.smolpc.unified",
   "build": {
     "frontendDist": "../dist",
     "devUrl": "http://localhost:1420",
@@ -12,9 +12,9 @@
   "app": {
     "windows": [
       {
-        "title": "SmolPC Code Helper",
-        "width": 1000,
-        "height": 800,
+        "title": "SmolPC 2.0 - Educational AI Tools",
+        "width": 1200,
+        "height": 900,
         "resizable": true,
         "fullscreen": false
       }
