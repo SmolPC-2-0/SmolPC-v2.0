@@ -13,7 +13,7 @@
 </script>
 
 {#if currentComponent}
-	<currentComponent />
+	<svelte:component this={currentComponent} />
 {:else}
 	<div class="flex h-screen items-center justify-center">
 		<div class="text-center">
