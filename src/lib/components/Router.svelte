@@ -10,6 +10,13 @@
 
 	// Get current route component
 	const currentComponent = $derived(routes[router.path] || routes['/']);
+
+	// Debug logging
+	$effect(() => {
+		console.log('Router - Current path:', router.path);
+		console.log('Router - Available routes:', Object.keys(routes));
+		console.log('Router - Current component:', currentComponent);
+	});
 </script>
 
 {#if currentComponent}
