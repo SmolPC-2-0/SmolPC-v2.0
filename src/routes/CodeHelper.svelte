@@ -221,7 +221,7 @@
 		<div class="flex items-center gap-4">
 			<ModelSelector />
 			<ContextToggle />
-			<StatusIndicator />
+			<StatusIndicator status={ollamaStore.status} />
 		</div>
 	</header>
 
