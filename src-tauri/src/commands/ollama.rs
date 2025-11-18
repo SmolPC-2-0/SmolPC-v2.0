@@ -279,6 +279,7 @@ pub async fn generate_stream(
                     None => {
                         // Stream ended
                         cancellation.clear();
+                        let _ = app_handle.emit("ollama_done", ());
                         return Ok(());
                     }
                 }
